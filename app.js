@@ -1,3 +1,6 @@
+import { db } from './firebase-config.js';
+import { ref, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
 document.addEventListener('DOMContentLoaded', () => {
   const setupScreen = document.getElementById('setup-screen');
   const appScreen = document.getElementById('app-screen');
@@ -118,21 +121,25 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUser.quadrant = color;
     currentUser.timestamp = new Date().getTime();
 
-    // Save to localStorage array
-    const existingData = JSON.parse(localStorage.getItem('emotionData') || '[]');
-    existingData.push(currentUser);
-    localStorage.setItem('emotionData', JSON.stringify(existingData));
-
-    // Show success and redirect or reset
-    alert(`太棒了！你的情緒座標已送出。\n你在 ${
-      color === 'red' ? '高能量/低愉悅' : 
-      color === 'yellow' ? '高能量/高愉悅' : 
-      color === 'blue' ? '低能量/低愉悅' : '低能量/高愉悅'
-    } 區塊。`);
-    
-    // Reset form
-    document.getElementById('user-name').value = '';
-    document.getElementById('user-desc').value = '';
-    btnBack.click();
+    // Save to Firebase Realtime Database
+    const emotionsRef = ref(db, 'emotions');
+    push(emotionsRef, currentUser)
+      .then(() => {
+        // Show success and redirect or reset
+        alert(`太棒了！你的情緒座標已送出。\n你在 ${
+          color === 'red' ? '高能量/低愉悅' : 
+          color === 'yellow' ? '高能量/高愉悅' : 
+          color === 'blue' ? '低能量/低愉悅' : '低能量/高愉悅'
+        } 區塊。`);
+        
+        // Reset form
+        document.getElementById('user-name').value = '';
+        document.getElementById('user-desc').value = '';
+        btnBack.click();
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
+        alert("傳送失敗，請再試一次！");
+      });
   });
 });

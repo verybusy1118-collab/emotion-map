@@ -1,3 +1,6 @@
+import { db } from './firebase-config.js';
+import { ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
 document.addEventListener('DOMContentLoaded', () => {
   const dashboardMap = document.getElementById('dashboard-map');
   const btnClear = document.getElementById('btn-clear');
@@ -7,19 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalTitle = document.getElementById('modal-title');
 
   // Load and cluster data
-  function renderDashboard() {
+  function renderDashboard(dataArray) {
     // Clear existing bubbles
     document.querySelectorAll('.heatmap-bubble').forEach(b => b.remove());
 
-    const data = JSON.parse(localStorage.getItem('emotionData') || '[]');
-    
-    if (data.length === 0) return;
+    if (!dataArray || dataArray.length === 0) return;
 
     // Clustering logic: Group points that are within a 5% radius of each other
     const clusters = [];
     const radius = 8; // 8% distance
 
-    data.forEach(point => {
+    dataArray.forEach(point => {
       let addedToCluster = false;
       for (let cluster of clusters) {
         const dx = cluster.x - point.x;
@@ -115,18 +116,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnClear.addEventListener('click', () => {
     if (confirm('確定要清空所有情緒座標資料嗎？')) {
-      localStorage.removeItem('emotionData');
-      renderDashboard();
+      const emotionsRef = ref(db, 'emotions');
+      set(emotionsRef, null).then(() => {
+        renderDashboard([]);
+      });
     }
   });
 
-  // Initial render
-  renderDashboard();
-
-  // Listen for changes from other tabs (local storage sync)
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'emotionData') {
-      renderDashboard();
+  // Listen to Firebase Realtime Database
+  const emotionsRef = ref(db, 'emotions');
+  onValue(emotionsRef, (snapshot) => {
+    const data = snapshot.val();
+    const dataArray = [];
+    if (data) {
+      for (let id in data) {
+        dataArray.push({ id, ...data[id] });
+      }
     }
+    renderDashboard(dataArray);
   });
 });
