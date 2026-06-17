@@ -1,6 +1,3 @@
-import { db } from './firebase-config.js';
-import { ref, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
 document.addEventListener('DOMContentLoaded', () => {
   const setupScreen = document.getElementById('setup-screen');
   const appScreen = document.getElementById('app-screen');
@@ -122,9 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUser.timestamp = new Date().getTime();
 
     // Save to Firebase Realtime Database
-    const emotionsRef = ref(db, 'emotions');
-    push(emotionsRef, currentUser)
+    window.db.ref('emotions').push(currentUser)
       .then(() => {
+        // == 發放通關憑證 ==
+        localStorage.setItem('cert_dynasty', 'true');
+
         // Show success and redirect or reset
         alert(`太棒了！你的情緒座標已送出。\n你在 ${
           color === 'red' ? '高能量/低愉悅' : 

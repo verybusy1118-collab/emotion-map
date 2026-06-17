@@ -1,6 +1,3 @@
-import { db } from './firebase-config.js';
-import { ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
 document.addEventListener('DOMContentLoaded', () => {
   const dashboardMap = document.getElementById('dashboard-map');
   const btnClear = document.getElementById('btn-clear');
@@ -116,16 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnClear.addEventListener('click', () => {
     if (confirm('確定要清空所有情緒座標資料嗎？')) {
-      const emotionsRef = ref(db, 'emotions');
-      set(emotionsRef, null).then(() => {
+      window.db.ref('emotions').set(null).then(() => {
         renderDashboard([]);
       });
     }
   });
 
   // Listen to Firebase Realtime Database
-  const emotionsRef = ref(db, 'emotions');
-  onValue(emotionsRef, (snapshot) => {
+  window.db.ref('emotions').on('value', (snapshot) => {
     const data = snapshot.val();
     const dataArray = [];
     if (data) {
