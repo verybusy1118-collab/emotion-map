@@ -49,10 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Determine base color based on quadrant of the centroid
       let color = '#94a3b8'; // default
-      if (cluster.x < 50 && cluster.y < 50) color = '#ef4444'; // red
-      if (cluster.x >= 50 && cluster.y < 50) color = '#eab308'; // yellow
-      if (cluster.x < 50 && cluster.y >= 50) color = '#3b82f6'; // blue
-      if (cluster.x >= 50 && cluster.y >= 50) color = '#22c55e'; // green
+      let bgColor = 'rgba(148, 163, 184, 0.6)';
+      if (cluster.x < 50 && cluster.y < 50) { color = '#ef4444'; bgColor = 'rgba(239, 68, 68, 0.6)'; } // red
+      if (cluster.x >= 50 && cluster.y < 50) { color = '#eab308'; bgColor = 'rgba(234, 179, 8, 0.6)'; } // yellow
+      if (cluster.x < 50 && cluster.y >= 50) { color = '#3b82f6'; bgColor = 'rgba(59, 130, 246, 0.6)'; } // blue
+      if (cluster.x >= 50 && cluster.y >= 50) { color = '#22c55e'; bgColor = 'rgba(34, 197, 94, 0.6)'; } // green
 
       // Scale bubble size based on count (min 30px, max 100px)
       const baseSize = 30;
@@ -65,7 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
       bubble.style.top = `${cluster.y}%`;
       bubble.style.width = `${size}px`;
       bubble.style.height = `${size}px`;
-      bubble.style.backgroundColor = color;
+      bubble.style.backgroundColor = bgColor;
+      bubble.style.boxShadow = `0 0 15px ${color}`;
       bubble.textContent = count;
       
       // On click, show details
