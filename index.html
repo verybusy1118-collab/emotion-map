@@ -8,7 +8,6 @@
 </head>
 <body>
   <div class="nav-links">
-    <a href="../大冒險地圖/index.html" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); margin-right: 10px;">&larr; 回到大地圖</a>
     <a href="dashboard.html">後台統計 Dashboard &rarr;</a>
   </div>
 
@@ -28,6 +27,11 @@
           <div class="input-group">
             <label for="user-desc">形容自己的一句話</label>
             <textarea id="user-desc" rows="3" placeholder="例如：今天充滿幹勁！" required maxlength="50"></textarea>
+          </div>
+          
+          <div class="input-group">
+            <label for="group-code">群組代碼 (選填)</label>
+            <input type="text" id="group-code" placeholder="例如：Class1" maxlength="20">
           </div>
           
           <button type="submit" class="btn">生成專屬圖騰</button>

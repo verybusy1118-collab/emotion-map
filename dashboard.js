@@ -113,23 +113,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  btnClear.addEventListener('click', () => {
-    if (confirm('確定要清空所有情緒座標資料嗎？')) {
-      window.db.ref('emotions').set(null).then(() => {
-        renderDashboard([]);
-      });
+  let currentRef = null;
+
+  function loadGroupData(groupCode) {
+    if (currentRef) {
+      currentRef.off();
     }
+    const refName = groupCode ? ('emotions_' + groupCode) : 'emotions';
+    currentRef = window.db.ref(refName);
+
+    currentRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      const dataArray = [];
+      if (data) {
+        for (let id in data) {
+          dataArray.push({ id, ...data[id] });
+        }
+      }
+      renderDashboard(dataArray);
+    });
+  }
+
+  // Initial load (default group)
+  loadGroupData('');
+
+  document.getElementById('btn-load-group')?.addEventListener('click', () => {
+    const code = document.getElementById('group-code-input').value.trim();
+    loadGroupData(code);
   });
 
-  // Listen to Firebase Realtime Database
-  window.db.ref('emotions').on('value', (snapshot) => {
-    const data = snapshot.val();
-    const dataArray = [];
-    if (data) {
-      for (let id in data) {
-        dataArray.push({ id, ...data[id] });
+  btnClear.addEventListener('click', () => {
+    if (confirm('確定要清空此群組的情緒座標資料嗎？')) {
+      if (currentRef) {
+        currentRef.set(null).then(() => {
+          renderDashboard([]);
+        });
       }
     }
-    renderDashboard(dataArray);
   });
 });

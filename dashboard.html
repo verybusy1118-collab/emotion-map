@@ -12,9 +12,13 @@
   </div>
 
   <div class="container" style="display: flex; flex-direction: column; align-items: center; padding-top: 4rem;">
-    <div class="header">
+    <div class="header" style="margin-bottom: 10px;">
       <h1>情緒統計儀表板</h1>
-      <p>點擊發光的區域以放大查看參與者的細節</p>
+      <p>點擊座標上的圓圈可以查看詳細內容</p>
+      <div style="margin-top: 1rem; display: flex; gap: 10px; justify-content: center;">
+        <input type="text" id="group-code-input" placeholder="輸入群組代碼查看 (例如: Class1)" style="padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; width: 250px;">
+        <button id="btn-load-group" class="btn" style="padding: 10px 20px; font-size: 1rem; margin-top: 0;">載入</button>
+      </div>
     </div>
 
     <div class="map-container" id="dashboard-map">
