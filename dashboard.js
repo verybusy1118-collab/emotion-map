@@ -113,40 +113,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  let currentRef = null;
+  let allData = [];
+  let currentFilter = '';
 
-  function loadGroupData(groupCode) {
-    if (currentRef) {
-      currentRef.off();
-    }
-    const refName = groupCode ? ('emotions_' + groupCode) : 'emotions';
-    currentRef = window.db.ref(refName);
-
-    currentRef.on('value', (snapshot) => {
-      const data = snapshot.val();
-      const dataArray = [];
-      if (data) {
-        for (let id in data) {
-          dataArray.push({ id, ...data[id] });
-        }
+  // Listen to Firebase Realtime Database ONCE
+  window.db.ref('emotions').on('value', (snapshot) => {
+    const data = snapshot.val();
+    allData = [];
+    if (data) {
+      for (let id in data) {
+        allData.push({ id, ...data[id] });
       }
-      renderDashboard(dataArray);
-    });
+    }
+    applyFilterAndRender();
+  });
+
+  function applyFilterAndRender() {
+    let filtered = [];
+    if (currentFilter && currentFilter !== '') {
+      filtered = allData.filter(item => item.dateGroup === currentFilter);
+    } else {
+      // Show default/empty group if no filter is specified
+      filtered = allData.filter(item => !item.dateGroup || item.dateGroup === 'default' || item.dateGroup === '');
+    }
+    renderDashboard(filtered);
   }
 
-  // Initial load (default group)
-  loadGroupData('');
-
   document.getElementById('btn-load-group')?.addEventListener('click', () => {
-    const code = document.getElementById('group-code-input').value.trim();
-    loadGroupData(code);
+    currentFilter = document.getElementById('group-code-input').value.trim();
+    applyFilterAndRender();
   });
 
   btnClear.addEventListener('click', () => {
-    if (confirm('確定要清空此群組的情緒座標資料嗎？')) {
-      if (currentRef) {
-        currentRef.set(null).then(() => {
-          renderDashboard([]);
+    if (confirm('確定要清空當前日期的情緒座標資料嗎？(將刪除符合當前日期的所有紀錄)')) {
+      let filtered = [];
+      if (currentFilter && currentFilter !== '') {
+        filtered = allData.filter(item => item.dateGroup === currentFilter);
+      } else {
+        filtered = allData.filter(item => !item.dateGroup || item.dateGroup === 'default' || item.dateGroup === '');
+      }
+      
+      const updates = {};
+      filtered.forEach(item => {
+        updates[item.id] = null;
+      });
+      
+      if (Object.keys(updates).length > 0) {
+        window.db.ref('emotions').update(updates).then(() => {
+          // Firebase on('value') will auto update
         });
       }
     }

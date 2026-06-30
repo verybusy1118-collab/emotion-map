@@ -15,8 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     y: 50  // percentage
   };
 
-  let currentGroup = 'emotions';
-
   let isDragging = false;
 
   // Setup Form Submit
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentUser.desc = document.getElementById('user-desc').value;
 
     const groupInput = document.getElementById('group-code') ? document.getElementById('group-code').value.trim() : '';
-    currentGroup = groupInput ? ('emotions_' + groupInput) : 'emotions';
+    currentUser.dateGroup = groupInput || 'default';
 
     // Pick a cute animal emoji based on the name
     const animals = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐧','🐤','🦆','🦉','🦄','🐝','🐢','🐙','🐬','🐳','🦔','🦦','🦥'];
@@ -127,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSubmit.textContent = '送出中...';
     
     // Save to Firebase Realtime Database
-    window.db.ref(currentGroup).push(currentUser)
+    window.db.ref('emotions').push(currentUser)
       .then(() => {
         // == 發放通關憑證 ==
         localStorage.setItem('cert_dynasty', 'true');
